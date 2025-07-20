@@ -64,91 +64,131 @@
 										<header>
 											<h3>Determining which machine learning model to use.</h3>
 										</header>
-										<p>Gradient Boost Models</p>
-										<p>This is the best model to use when analyzing customer churn prediction.</p>
-										<li><strong>Captures patterns</strong> without needed to manually add a lot of feature interactions</li>
-										<p>		Since churn is influenced by many non-linear, subtle patterns, GBM modesl can handle complex relationships automatically.</p>
-										<li><strong>Built-in Feature importance</strong></li>
-										<p>This is extremely useful to help identify which features are most impactful for customer churn.</p>
-										<li><strong>Robust to missing and categorical data</strong></li>
-										<p>Handles missing values well and it reduces data pre-processing.</p>
-										<li><strong>High Acccuracy, Low Bias</strong></li>
-										<p>This minimizes variance and bias which overall helps reduce overfitting.</p>
+										<h2>Gradient Boost Models</h2>
+										<p>
+											Gradient Boosting Models are among the best options for analyzing customer churn prediction.
+										</p>
 
-										<p>Different Types of GBM</p>
-										<li><strong>XGBoost</strong> (Extreme Gradient Boosting)</li>
+										<h3>Why Use Gradient Boost Models?</h3>
+										<ul>
+											<li><strong>Captures patterns:</strong> Since churn is influenced by many non-linear, subtle patterns, GBM models can handle complex relationships automatically without manually adding feature interactions.</li>
+											<li><strong>Built-in feature importance:</strong> Helps identify which features are most impactful for customer churn.</li>
+											<li><strong>Robust to missing and categorical data:</strong> Handles missing values well, reducing the need for data pre-processing.</li>
+											<li><strong>High accuracy, low bias:</strong> Minimizes variance and bias, which helps reduce overfitting.</li>
+										</ul>
+
+										<h3>Different Types of GBMs</h3>
+
+										<h4>XGBoost (Extreme Gradient Boosting)</h4>
+										<ul>
 											<li>Fast</li>
 											<li>Accurate</li>
-											<li>Limitation: Categorical features need one-hot encoding</li>
-										<li><strong>LightGBM</strong> (by Microsoft)</li>
+											<li><strong>Limitation:</strong> Categorical features need to be one-hot encoded.</li>
+										</ul>
+
+										<h4>LightGBM (by Microsoft)</h4>
+										<ul>
 											<li>Faster than XGBoost</li>
 											<li>More memory-efficient than XGBoost</li>
-											<li>Supports categoical features natively</li>
-											<li>Limitation: Can be sensitive to small dataasets or overfitting if not tuned.</li>
-										<li><strong>CatBoost</strong>> (by Yandex)</li>
-											<li>Best at dealing with categorical variables without preprocessing.</li>
-											<li>Slover than LightGBM but has better accuracy</li>
+											<li>Supports categorical features natively</li>
+											<li><strong>Limitation:</strong> Can be sensitive to small datasets or overfit if not tuned properly.</li>
+										</ul>
+
+										<h4>CatBoost (by Yandex)</h4>
+										<ul>
+											<li>Best at dealing with categorical variables without preprocessing</li>
+											<li>Slower than LightGBM, but often more accurate</li>
 											<li>Less sensitive to overfitting</li>
-										<br>
-											<h3>Check out the Code</h3>
-											<a href="https://colab.research.google.com/drive/1EeL9UNnXerJyJeR7jyYs0zXSl9UbEqr0?usp=sharing">Google Colab NoteBook</a>
+										</ul>
+
+										 <h2>Modeling Journey and Dataset Selection</h2>
+
+										<p>
+											Now originally, I wanted to find the best performing gradient boost models. I ran all three using the same target and explanatory variable, and I discovered that they all produced the exact same results. I had thought that CatBoost would be the best as it handles categorical data very well, and this Amazon dataset had a lot, yet it seemed that they were all equal. As such, for the simplicity of my audience being the general public, I decided that it would be best to use an XGBoost machine learning algorithm as this is what most people are more familiar with out of the three different methods.
+										</p>
+
+										<p>
+											Now, when I was running my model, I ran it using three datasets. The first was an instacart dataset. Now, this was very limited with around 7-8 columns and not that many rows. This later proved to be an issue as the algorithm found it difficult to find any meaningful patterns in the data, since there was a lack of it. In addition, no matter how many hyperparameters I tuned or changed the training model, the model itself wouldn’t provide any results greater than around 60%.
+										</p>
+
+										<p>
+											As such, I decided to go searching for other data. This time, Kaggle led me to an Amazon behavior survey dataset. Right off the bat, this dataset seemed more promising. It contained far more data and columns than the previous. In addition, the columns seemed to lead to customer churn as the data provided purchasing frequency, add-to-cart frequency, signified if the reviews were helpful, how the product was rated, and many more.
+										</p>
+
+										<p>
+											Feeling more hopeful, I began training using XGBoost. I would run feature importance scores, choose the top performing features, and this would eventually boost my models performance. The most notable, yet a mistake I caught too late, was that I created my own target variable.
+										</p>
+
+										<p>
+											This means that I relied on the data’s columns to create my churn variable. To put it simply, I told the model, if this customer is a “rare” or “never” completes a purchase, then classify them as 1, one who churns. In addition, I created ratio columns, where I used that purchasing frequency as well, which leaked in data to the model.
+										</p>
+
+										<p>
+											As such, even after dropping the purchasing frequency column, I still had those ratio columns that had results, which caused my model to perform abnormally well. I had a suspicion that I was leaking data, yet I could not find it. 
+										</p>
+
+										<p>
+											I would perform exploratory analysis, create graphs and tables to see if there are any outliers or weird data. I couldn’t find it until I met with my professor. He explained to me that the ratios were the issue as well as creating my own target. 
+										</p>
+
+										<p>
+											As such, we decided to find a new dataset together, one that has the churn column created and that is where we found the fictional telco churn dataset.
+										</p>
+
+										<h3>Starting Fresh</h3>
+
+										<p>
+											From these two past experiences, I was able to better understand the importance of having the right data as the right ones wouldn’t pose any issues or troubles. This dataset proved to do just that.
+										</p>
+
+										<p>
+											I began by first merging different datasets. I would choose the columns I wanted from the other datasets, then merge them together using an inner join in python. 
+										</p>
+
+										<p>
+											Then, since the data was already clean and tidy, I began running a “general” testing model, where I included all the factors, despite the target. I noticed that the first feature importance score shows that the satisfaction score was abnormally high with an f-1 score of close to 200 when most are reaching 25. I decided to drop that feature as that signifies that it’s too closely correlated to churn. By doing so, this dropped my accuracy from 99 to 65, which is more reasonable.
+										</p>
+
+										<img src="/images/featureImportance.png" alt="Feature Importance" />
+
+										<p>
+											After, I ran a feature on importance and selected the top five features: internet service, contract, dependents, streaming movies, and number of referrals. This led to a jump in accuracy score to 80%.
+										</p>
+
+										<p>
+											However, at this moment, I decided that the metric I wanted to focus on was the recall score for churns. This is due to wanting to catch all potential churners before they churn, so that the company could try to retain them using strategies as best as they could. After making this note, I noticed that the recall for churners was at 66 and I wanted to get this value higher.
+										</p>
+
+										<p>
+											I performed some exploratory analysis to better understand the variety in the data. The most notable was the difference in the count of active and non-active customers where there were around 5,000 active customers and around 2,000 non-active customers. This is important to note as this could lead to some bias towards active customers in the model, since that is the majority.
+										</p>
+
+										<p>
+											To address this, I decided to use a weight or a scale where I created a ratio by dividing the active to non-active customers giving me a ratio of 2.77. The weight was then added to the model and while this dropped in accuracy by 4% (to 0.76) the recall improved to 86%.
+										</p>
+
+										<p>
+											In hopes to get an even higher score, I began researching more about XGBoost models and the various hyperparameters than I can fine tune. While learning, I found something called the “threshold.” This is where the model begins to identify who is a churner and who isn’t.
+										</p>
+
+										<p>
+											Automatically, my model has its threshold set to 5% which gives each person a 50/50 chance. I decided to lower it to 35%, which makes the model much more sensitive, helping it catch more potential churners. 
+										</p>
+
+										<p>
+											As a result, this adjustment worked and I was able to get a recall score of 95%. This means that this XGBoost model was able to catch 95% of actual churners which is helpful when we want to prevent any losses in customers. 
+										</p>
+
+										<img src="images/results.png" alt="Model Results" />
+
+										<h3>Check out the Code</h3>
+											<a href="https://colab.research.google.com/drive/1PkLb0OIcgEtrsawGlcbm7nlQxu7lDRGa?usp=sharing">Google Colab NoteBook</a>
 									</section>
 								</div>
 
 						</section>
 
-					<!-- Two -->
-						<section class="wrapper style1 container special">
-							<div class="row">
-								<div class="col-4 col-12-narrower">
-
-									<section>
-										<header>
-											<h3>This is Something</h3>
-										</header>
-										<p>Sed tristique purus vitae volutpat ultrices. Aliquam eu elit eget arcu commodo suscipit dolor nec nibh. Proin a ullamcorper elit, et sagittis turpis. Integer ut fermentum.</p>
-										<footer>
-											<ul class="buttons">
-												<li><a href="#" class="button small">Learn More</a></li>
-											</ul>
-										</footer>
-									</section>
-
-								</div>
-								<div class="col-4 col-12-narrower">
-
-									<section>
-										<header>
-											<h3>Also Something</h3>
-										</header>
-										<p>Sed tristique purus vitae volutpat ultrices. Aliquam eu elit eget arcu commodo suscipit dolor nec nibh. Proin a ullamcorper elit, et sagittis turpis. Integer ut fermentum.</p>
-										<footer>
-											<ul class="buttons">
-												<li><a href="#" class="button small">Learn More</a></li>
-											</ul>
-										</footer>
-									</section>
-
-								</div>
-								<div class="col-4 col-12-narrower">
-
-									<section>
-										<header>
-											<h3>Probably Something</h3>
-										</header>
-										<p>Sed tristique purus vitae volutpat ultrices. Aliquam eu elit eget arcu commodo suscipit dolor nec nibh. Proin a ullamcorper elit, et sagittis turpis. Integer ut fermentum.</p>
-										<footer>
-											<ul class="buttons">
-												<li><a href="#" class="button small">Learn More</a></li>
-											</ul>
-										</footer>
-									</section>
-
-								</div>
-							</div>
-						</section>
-
-				</article>
+					
 
 			<!-- Footer -->
 				<footer id="footer">
